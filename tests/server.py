@@ -51,22 +51,19 @@ def run():
         elif command_str == 'stop':
             print(command_str)
             conn.send(command)
+            conn.close()
             logging.info("Got 'stop' command")
         # moveto command
         elif "moveto" in command_str:
             region = command_str.split()[1]
             print(region)
             conn.send(command)
-            logging.info("Got 'stop' command")
-        # exit
-        elif command_str == 'exit':
-            conn.send(b'\0')
             conn.close()
-            logging.info("Connection closed")
-            exit(0)
+            logging.info("Got 'stop' command")
         else:
             print(command_str)
             conn.send(command)
+            conn.close()
 
 
 
