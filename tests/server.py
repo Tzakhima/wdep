@@ -1,4 +1,3 @@
-
 '''
 v0.1
 
@@ -56,10 +55,11 @@ def run():
         # moveto command
         elif "moveto" in command_str:
             region = command_str.split()[1]
-            print(region)
-            conn.send(command)
+            dns = command_str.split()[2]
+            recieved = "got region - {} dns - {}".format(region, dns)
+            conn.send(recieved.encode())
             conn.close()
-            logging.info("Got 'stop' command")
+            logging.info(recieved)
         else:
             print(command_str)
             conn.send(command)
