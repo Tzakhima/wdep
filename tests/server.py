@@ -41,7 +41,7 @@ TARGETS_COUNT = 2
 # Set logging
 logging.basicConfig(filename="/var/log/server.log", level=logging.DEBUG)
 
-def start(region):
+def start(region, dns):
     logging.info("'start' function starts")
     ec2_c = boto3.client('ec2', region_name=region)
     ec2 = boto3.resource('ec2', region_name=region)
@@ -236,8 +236,6 @@ def run():
         elif "moveto" in command_str:
             region = command_str.split()[1]
             dns = command_str.split()[2]
-            recieved = "got region - {} dns - {}".format(region, dns)
-            conn.send(recieved.encode())
             logging.info(recieved)
             resp = start(region, dns)
             if resp:
