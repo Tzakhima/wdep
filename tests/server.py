@@ -11,8 +11,6 @@ moveto <region> - will initiate the same deployment in specified region
 '''
 
 import pip
-import time
-import sys
 import socket
 import logging
 try:
@@ -25,9 +23,8 @@ except ImportError:
 # Set global parameters
 HOST = ''
 BUFSIZE       = 1024
-KEY_FILE      = 'ec2_keypair.pem'
-KEY_NAME      = 'ec2_keys'
-#IMAGE_ID      = 'ami-061392db613a6357b'
+KEY_FILE      = 'ec2_keypair.pem' # if you need SSH access, point to your pem file here
+KEY_NAME      = 'ec2_keys'        # and add this to 'create_instance' section KeyName=KEY_NAME
 INST_TYPE     = 't2.micro'
 MIN_COUNT     = 2
 MAX_COUNT     = 2
@@ -39,21 +36,21 @@ LB_NAME       = 'lb1'
 TARGETS_COUNT = 2
 
 # Set logging
-logging.basicConfig(filename="/var/log/server.log", level=logging.DEBUG)
+logging.basicConfig(filename="/var/log/server.log", level=logging.INFO)
 
-def start(region, dns):
+def start(region, ip):
     logging.info("'start' function starts")
+    MY_IP = ip
     ec2_c = boto3.client('ec2', region_name=region)
     ec2 = boto3.resource('ec2', region_name=region)
     try:
         # Find ImageID in the new region
         logging.info("Checking for the AMI name in the desired region")
         img_resp = ec2_c.describe_images(
-            Owners=['679593333241'],  # CentOS
+            Owners=['137112412989'],  # AMI
             Filters=[
-                {'Name': 'name', 'Values': ['CentOS Linux 7 x86_64 HVM EBS *']},
+                {'Name': 'description', 'Values': ['Amazon Linux 2 AMI *']},
                 {'Name': 'architecture', 'Values': ['x86_64']},
-                {'Name': 'root-device-type', 'Values': ['ebs']},
             ],
         )
         IMAGE_ID = img_resp['Images'][0]['ImageId']
@@ -115,7 +112,7 @@ def start(region, dns):
 
         # Create Instance
         run_instances = ec2.create_instances(ImageId=IMAGE_ID, InstanceType=INST_TYPE,
-                                                          MaxCount=MAX_COUNT, MinCount=MIN_COUNT,KeyName=KEY_NAME,
+                                                          MaxCount=MAX_COUNT, MinCount=MIN_COUNT,
                                              NetworkInterfaces=[{
                                                  'DeviceIndex': 0,
                                                  'SubnetId': subnet.id,
@@ -131,7 +128,7 @@ def start(region, dns):
                                                      }
                                                  ]
                                              }],
-                                             UserData=open("user-data.sh").read()
+                                             UserData=open("/var/lib/cloud/instance/user-data.txt").read()
                                              )
         # Get Instance IDs
         id_list = get_live_instances(region)
@@ -188,7 +185,7 @@ def start(region, dns):
     except Exception as start_execption:
         logging.error(start_execption)
         logging.error("Reverting....\n")
-        return False
+        return("error")
 
 
 def get_live_instances(region):
@@ -235,14 +232,15 @@ def run():
         # moveto command
         elif "moveto" in command_str:
             region = command_str.split()[1]
-            dns = command_str.split()[2]
-            logging.info(recieved)
-            resp = start(region, dns)
+            ip = command_str.split()[2]
+            logging.info(command_str)
+            resp = start(region, ip)
             if resp:
                 conn.send(resp.encode())
+                conn.close()
             else:
                 conn.send('\b0')
-            conn.close()
+                conn.close()
         else:
             print(command_str)
             conn.send(command)
