@@ -14,7 +14,8 @@ Will start the deployment in the default region. (the REGION variable)
 __stop__   
 Will delete the deployment in the current region  
 
-__MOVETO__
+__MOVETO__  
+
 Will send the current deployment a command to start a new deployment in the desired region.
 After the deployment ends, The client will delete the deployment on the "old" region.
 
