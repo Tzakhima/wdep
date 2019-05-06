@@ -140,7 +140,7 @@ def start(region):
 
             # Create Instance
             run_instances = ec2.create_instances(ImageId=IMAGE_ID, InstanceType=INST_TYPE,
-                                                              MaxCount=MAX_COUNT, MinCount=MIN_COUNT,KeyName=KEY_NAME,
+                                                              MaxCount=MAX_COUNT, MinCount=MIN_COUNT,
                                                  NetworkInterfaces=[{
                                                      'DeviceIndex': 0,
                                                      'SubnetId': subnet.id,
