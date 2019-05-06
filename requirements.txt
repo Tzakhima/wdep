@@ -1,0 +1,3 @@
+boto3==1.9.142
+Click==7.0
+requests==2.21.0
