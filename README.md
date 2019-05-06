@@ -6,7 +6,7 @@ USAGE:
 ------------------------------
 This tool intend to automate the deployment of 2 instances behind an ELB on AWS.  
 There are 3 main commands:  
-(main.py script located in client directory)
+(main.py script located in client directory)   
 `python main.py -c [start|stop|moveto]`
   
 __START__   
